@@ -8,20 +8,53 @@
 </head>
 <body>
   <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <h1>Lost &amp; Found</h1>
-        <p class="tagline">Report lost items or help return found ones</p>
+
+    <!-- Slide-out Sidebar -->
+    <aside id="sidebar" class="sidebar" aria-hidden="true">
+  <div class="sidebar-inner card">
+    <div class="sidebar-brand">
+      <h2>Menu</h2>
+      <button id="closeMenu" class="icon-btn">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="side-link" data-target="view-items">Items</button>
+      <button class="side-link" data-target="view-inventory">
+        Inventory <span id="inventoryCount" class="badge">0</span>
+      </button>
+      <button class="side-link" data-target="view-deleted">Deleted</button>
+
+      <hr/>
+
+      <div class="side-actions">
+        <button id="exportAllCsv" class="ghost">Export All CSV</button>
+        <button id="exportAllPdf" class="ghost">Export All (Print/PDF)</button>
       </div>
 
-      <div class="controls">
-        <button id="darkToggle" class="icon-btn" aria-pressed="false" title="Toggle dark mode">🌓</button>
-        <button id="clearAll" class="ghost-btn" title="Reset demo">Reset</button>
-      </div>
-    </header>
+      <hr/>
+      <div id="authArea"></div>
+    </nav>
+  </div>
+</aside>
+
+
+
+    <header class="topbar">
+  <div class="brand">
+    <h1>Lost &amp; Found</h1>
+    <p class="tagline">Report lost items or help return found ones</p>
+  </div>
+
+  <div class="controls">
+    <button id="darkToggle" class="icon-btn" title="Toggle theme">🌓</button>
+    <button id="menuBtn" class="icon-btn" title="Open menu">☰</button>
+  </div>
+</header>
+
 
     <main class="layout">
-      <aside class="panel card">
+      <!-- Left panel (form) -->
+      <aside class="panel card" id="view-items">
         <h2>Add an item</h2>
 
         <form id="itemForm" class="form">
@@ -29,53 +62,54 @@
             <label>
               <span class="label">Type</span>
               <select id="type">
-                <option value="lost">Lost</option>
-                <option value="found">Found</option>
+                <option value="lost">LOST</option>
+                <option value="found">FOUND</option>
               </select>
             </label>
 
             <label>
-              <span class="label">Date</span>
+              <span class="label">DATE</span>
               <input id="date" type="date" />
             </label>
           </div>
 
           <label>
-            <span class="label">Title</span>
+            <span class="label">TITLE</span>
             <input id="title" type="text" placeholder="e.g. Black wallet" required />
           </label>
 
           <label>
-            <span class="label">Category</span>
+            <span class="label">CATEGORY</span>
             <input id="category" type="text" placeholder="Wallet, Electronics, Bag" />
           </label>
 
           <label>
-            <span class="label">Location</span>
+            <span class="label">LOCATION</span>
             <input id="location" type="text" placeholder="e.g. Library, Gate 3" />
           </label>
 
           <label>
-            <span class="label">Description</span>
+            <span class="label">DESCRIPTION</span>
             <textarea id="description" placeholder="Details that help identify the item"></textarea>
           </label>
 
           <label class="file-label">
-            <span class="label">Image (optional)</span>
+            <span class="label">IMAGE (optional)</span>
             <input id="imageInput" type="file" accept="image/*" />
             <div id="preview" class="preview" aria-hidden="true">No photo</div>
-            <small class="hint">Max 3MB recommended. Preview shown above.</small>
+            <small class="hint">Max 5MB recommended. Preview shown above.</small>
           </label>
 
           <div class="actions">
-            <button type="submit" class="primary">Add Item</button>
+            <button type="submit" class="primary">ADD ITEM</button>
             <button id="importSample" type="button" class="ghost">Add sample</button>
           </div>
         </form>
       </aside>
 
+      <!-- Right content area: main list / inventory / deleted (views toggled by JS) -->
       <section class="content">
-        <div class="card searchbar">
+        <div class="card searchbar" id="list-controls">
           <input id="search" placeholder="Search title, category, location..." />
           <div class="filters">
             <select id="filterType">
@@ -91,9 +125,22 @@
           </div>
         </div>
 
-        <div id="list" class="list"></div>
+        <!-- Active items list -->
+        <div id="list" class="list view"></div>
 
-        <footer class="small muted">Data stored locally in your browser (localStorage). Use developer tools to export JSON (call <code>exportLF()</code>).</footer>
+        <!-- Inventory view (hidden by default, shown via sidebar) -->
+        <div id="view-inventory" class="card view" style="display:none; margin-top:12px;">
+          <h2>Inventory (claimed)</h2>
+          <div id="inventory" class="list" style="margin-top:12px;"></div>
+        </div>
+
+        <!-- Deleted view (hidden by default) -->
+        <div id="view-deleted" class="card view" style="display:none; margin-top:12px;">
+          <h2>Deleted Items (Bin)</h2>
+          <div id="deleted" class="list" style="margin-top:12px;"></div>
+        </div>
+
+        <footer class="small muted">Data stored locally in your browser (localStorage). Use the menu → Export to save data.</footer>
       </section>
     </main>
   </div>
