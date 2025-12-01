@@ -84,6 +84,70 @@ function bindSidebar() {
     renderDeleted();
     renderAuth();
 
+    // ---------- FULLSCREEN TOGGLE (top-right) ----------
+    // Adds a small fullscreen toggle button at top-right corner.
+    (function bindFullscreen(){
+      const existing = document.getElementById('fullscreenToggle');
+      if (existing) return;
+
+      const btn = document.createElement('button');
+      btn.id = 'fullscreenToggle';
+      btn.setAttribute('aria-label','Toggle fullscreen');
+      btn.title = 'Toggle fullscreen';
+      // minimal inline styling so it appears at top-right without modifying CSS files
+      btn.style.position = 'fixed';
+      btn.style.top = '10px';
+      btn.style.right = '10px';
+      btn.style.zIndex = 10000;
+      btn.style.padding = '6px 8px';
+      btn.style.borderRadius = '6px';
+      btn.style.border = 'none';
+      btn.style.cursor = 'pointer';
+      btn.style.background = 'rgba(255,255,255,0.92)';
+      btn.style.boxShadow = '0 1px 6px rgba(0,0,0,0.12)';
+      btn.style.fontSize = '14px';
+      btn.style.lineHeight = '1';
+      btn.style.minWidth = '38px';
+      btn.style.minHeight = '34px';
+      btn.style.display = 'flex';
+      btn.style.alignItems = 'center';
+      btn.style.justifyContent = 'center';
+      btn.style.gap = '6px';
+
+      const updateIcon = () => {
+        const isFs = !!document.fullscreenElement;
+        btn.textContent = isFs ? '⤢' : '⛶'; // different glyphs for state
+      };
+
+      async function enterFs(){
+        try{
+          if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+          else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+          else if (document.documentElement.msRequestFullscreen) document.documentElement.msRequestFullscreen();
+        }catch(e){}
+      }
+      async function exitFs(){
+        try{
+          if (document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+          else if (document.msExitFullscreen) document.msExitFullscreen();
+        }catch(e){}
+      }
+      btn.addEventListener('click', async () => {
+        if (!document.fullscreenElement) await enterFs();
+        else await exitFs();
+      });
+
+      // update on change (user pressed ESC etc)
+      document.addEventListener('fullscreenchange', updateIcon);
+      document.addEventListener('webkitfullscreenchange', updateIcon);
+      document.addEventListener('msfullscreenchange', updateIcon);
+
+      // initial state
+      updateIcon();
+      document.body.appendChild(btn);
+    })();
+
     // ---------- helpers ----------
     function save(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
     function load(key){ try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
@@ -410,4 +474,3 @@ function bindSidebar() {
 document.addEventListener("DOMContentLoaded", () => {
   bindSidebar();
 });
-
